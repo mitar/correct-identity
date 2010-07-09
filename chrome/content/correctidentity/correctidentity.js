@@ -10,7 +10,9 @@ var CorrectIdentity = {
 
   accountManager: Components.classes["@mozilla.org/messenger/account-manager;1"]
                     .getService(Components.interfaces.nsIMsgAccountManager),
-
+  
+  changed: false,
+  
   getAccountPreferences: function(oServer)
   {
     var oPreferences = this.preferences;
@@ -244,6 +246,21 @@ var CorrectIdentity = {
       window.CorrectIdentity.origgetIdentityForServer = window.getIdentityForServer;
       window.getIdentityForServer = window.CorrectIdentity.getIdentityForServer;
     }
+    if (window.setupAutocomplete && (window.CorrectIdentity.origsetupAutocomplete == null)) {
+      // Overlay function setupAutocomplete of chrom://messenger/content/messengercompose/MsgComposeCommands.js
+      window.CorrectIdentity.origsetupAutocomplete = window.setupAutocomplete;
+      window.setupAutocomplete = window.CorrectIdentity.setupAutocomplete;
+    }
+    if (window.awAddRecipient && (window.CorrectIdentity.origawAddRecipient == null)) {
+      // Overlay function setupAutocomplete of chrom://messenger/content/messengercompose/addressingWidgetOverlay.js
+      window.CorrectIdentity.origawAddRecipient = window.awAddRecipient;
+      window.awAddRecipient = window.CorrectIdentity.awAddRecipient;
+    }
+    if (window.LoadIdentity && (window.CorrectIdentity.origLoadIdentity == null)) {
+      // Overlay function LoadIdentity of chrom://messenger/content/messengercompose/MsgComposeCommands.js
+      window.CorrectIdentity.origLoadIdentity = window.LoadIdentity;
+      window.LoadIdentity = window.CorrectIdentity.LoadIdentity;
+    }
   },
 
   origgetIdentityForServer: null,
@@ -251,18 +268,21 @@ var CorrectIdentity = {
   {
     var oAccountPreferences = window.CorrectIdentity.getAccountPreferences(server);
     var oIdentity = null;
-
+    
+    // We overlay with the same code different things and as names are different we make a simple trick to make them the same
+    if (!window.accountManager) window.accountManager = gAccountManager;
+    
     // First, select an identity using the prefered identity mechanism
     switch(oAccountPreferences.identityMechanism)
     {
       case 1: oIdentity = window.accountManager.getIdentity(oAccountPreferences.explicitIdentity);  break;
       // Room for more options in the future
     }
-    if ((oIdentity == null) || (oIdentity.email == null))
-      oIdentity = window.CorrectIdentity.origgetIdentityForServer(server); // Fallback to TB default mechanism without the hint
+    if (window.CorrectIdentity.origgetIdentityForServer && ((oIdentity == null) || (oIdentity.email == null)))
+      oIdentity = window.CorrectIdentity.origgetIdentityForServer(server); // Fallback to TB default mechanism without the hint, if this function is called when constructing a new message
 
     // Second, if prefered to reply from a receiving identity and we have a hint that does not contain
-    // the currently selected identity's email address, then enumerate the email addresses ans aliases
+    // the currently selected identity's email address, then enumerate the email addresses and aliases
     // of all identities available from last till first and return the last one that exists in the hint
     if (optionalHint && oAccountPreferences.replyFromRecipient)
     {
@@ -277,9 +297,9 @@ var CorrectIdentity = {
           // Process identity unless preferred never to detect it
           if (oThisIdentity.email && oIdentityPreferences.detectable)
           {
-            // Scan identity email address
+            // Scan identity email address if this function is called when constructing a new message
             var sEmail = oThisIdentity.email.toLowerCase();
-            if ((sEmail.indexOf("@") != -1) && (optionalHint.indexOf(sEmail) >= 0))
+            if (window.CorrectIdentity.origgetIdentityForServer && (sEmail.indexOf("@") != -1) && (optionalHint.indexOf(sEmail) >= 0))
               oMatchingId = oThisIdentity;
             
             // Scan identity aliases
@@ -308,8 +328,44 @@ var CorrectIdentity = {
     }
 
     return oIdentity;
-  }
+  },
 
+  redoIdentity: function() {
+    if (gMsgCompose != null) {
+      var msgCompFields = gMsgCompose.compFields;
+      if (msgCompFields) {
+        Recipients2CompFields(msgCompFields);
+                
+        var currentidentity = gAccountManager.getIdentity(document.getElementById("msgIdentity").value);
+        var servers = gAccountManager.GetServersForIdentity(currentidentity);
+        var identity = window.CorrectIdentity.getIdentityForServer(servers.QueryElementAt(0, Components.interfaces.nsIMsgIncomingServer), msgCompFields.to + "," + msgCompFields.cc);
+        
+        dump("window: " + window + ", " + window.CorrectIdentity.changed + "\n");
+        if (!window.CorrectIdentity.changed && identity && (currentidentity != identity)) {
+          document.getElementById("msgIdentity").value = identity.key;
+          window.CorrectIdentity.origLoadIdentity(false);
+        }
+      }
+    }
+  },
+
+  origsetupAutocomplete: null,
+  setupAutocomplete: function() {
+    window.CorrectIdentity.origsetupAutocomplete();
+    window.CorrectIdentity.redoIdentity();
+  },
+  
+  origawAddRecipient: null,
+  awAddRecipient: function(recipientType, address) {
+    window.CorrectIdentity.origawAddRecipient(recipientType, address);
+    window.CorrectIdentity.redoIdentity();
+  },
+  
+  origLoadIdentity: null,
+  LoadIdentity: function(startup) {
+  	window.CorrectIdentity.changed = !startup;
+    window.CorrectIdentity.origLoadIdentity(startup);
+  }
 };
 
 window.addEventListener('load',CorrectIdentity.init,false);
