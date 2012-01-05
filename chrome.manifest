@@ -1,11 +1,11 @@
-content correctidentity jar:chrome/correctidentity.jar!/content/correctidentity/
+content correctidentity chrome://correctidentity/content/correctidentity/
 
 overlay chrome://messenger/content/messenger.xul     chrome://correctidentity/content/
 overlay chrome://messenger/content/messageWindow.xul chrome://correctidentity/content/
 
-skin    correctidentity classic/1.0 jar:chrome/correctidentity.jar!/skin/classic/correctidentity/
+skin    correctidentity classic/1.0 chrome://correctidentity/skin/classic/correctidentity/
 
-locale  correctidentity en-US jar:chrome/correctidentity.jar!/locale/en-US/correctidentity/
-locale  correctidentity nl-NL jar:chrome/correctidentity.jar!/locale/nl-NL/correctidentity/
-locale  correctidentity de-DE jar:chrome/correctidentity.jar!/locale/de-DE/correctidentity/
-locale  correctidentity ja    jar:chrome/correctidentity.jar!/locale/ja/correctidentity/
+locale  correctidentity en-US chrome://correctidentity/locale/en-US/correctidentity/
+locale  correctidentity nl-NL chrome://correctidentity/locale/nl-NL/correctidentity/
+locale  correctidentity de-DE chrome://correctidentity/locale/de-DE/correctidentity/
+locale  correctidentity ja    chrome://correctidentity/locale/ja/correctidentity/
