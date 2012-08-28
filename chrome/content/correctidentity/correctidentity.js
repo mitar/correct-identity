@@ -1,5 +1,5 @@
-// Correct Identity v1.3.3
-// Copyright (c) 2005-2010 Dennis Verspuij
+// Correct Identity v1.3.5
+// Copyright (c) Dennis Verspuij
 
 var CorrectIdentity = {
 
@@ -242,9 +242,12 @@ var CorrectIdentity = {
   {
     if (window.getIdentityForServer && (window.CorrectIdentity.origgetIdentityForServer == null))
     {
-      // Overlay function getIdentityForServer of chrome://messenger/content/mailCommands.js
+      // Overlay function getIdentityForServer of chrome://messenger/content/mailCommands.js (mail/base/content/mailCommands.js)
       window.CorrectIdentity.origgetIdentityForServer = window.getIdentityForServer;
       window.getIdentityForServer = window.CorrectIdentity.getIdentityForServer;
+
+      var appInfo = Components.classes['@mozilla.org/xre/app-info;1'].getService(Components.interfaces.nsIXULAppInfo);
+      window.CorrectIdentity.lastHintIsDeliveredTo = (appInfo.name == 'Thunderbird') && (parseInt(appInfo.version, 10) >= 13);
     }
     if (window.setupAutocomplete && (window.CorrectIdentity.origsetupAutocomplete == null)) {
       // Overlay function setupAutocomplete of chrom://messenger/content/messengercompose/MsgComposeCommands.js
@@ -263,6 +266,7 @@ var CorrectIdentity = {
     }
   },
 
+  lastHintIsDeliveredTo: false,
   origgetIdentityForServer: null,
   getIdentityForServer: function(server, optionalHint)
   {
@@ -286,6 +290,15 @@ var CorrectIdentity = {
     // of all identities available from last till first and return the last one that exists in the hint
     if (optionalHint && oAccountPreferences.replyFromRecipient)
     {
+      // Remove Delivered-To address always hinted last since TB 13, with thanks to azurewelkin for detecting this!
+      if (window.CorrectIdentity.lastHintIsDeliveredTo)
+        optionalHint = optionalHint.replace(/,[^,]*$/, '');
+
+      // Uncomment to view what hinted addresses are evaluated:
+      //Components.classes["@mozilla.org/consoleservice;1"]
+      //  .getService(Components.interfaces.nsIConsoleService)
+      //  .logStringMessage("CorrectIndentity evaluated hints:\n"+optionalHint);
+
       optionalHint = optionalHint.toLowerCase();
       if (!(oIdentity && (oIdentity.email.indexOf("@") != -1) && (optionalHint.indexOf(oIdentity.email.toLowerCase()) >= 0)))
       {
@@ -302,7 +315,7 @@ var CorrectIdentity = {
             if (window.CorrectIdentity.origgetIdentityForServer && (sEmail.indexOf("@") != -1) && (optionalHint.indexOf(sEmail) >= 0))
               oMatchingId = oThisIdentity;
             
-            // Scan identity aliases
+			// Scan identity aliases
             if (!oMatchingId)
               for(var aAliases=oIdentityPreferences.aliases.split(/\n+/), sAlias, iNr=aAliases.length; iNr--;)
                 if ((sAlias = aAliases[iNr]) != "")
