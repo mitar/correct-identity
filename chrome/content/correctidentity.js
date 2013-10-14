@@ -7,9 +7,9 @@ var CorrectIdentity = {
 
   accountManager: Components.classes["@mozilla.org/messenger/account-manager;1"]
                     .getService(Components.interfaces.nsIMsgAccountManager),
-  
+
   changed: false,
-  
+
   getIdentityById: function(identities, idx)
   {
     return identities.queryElementAt
@@ -26,7 +26,7 @@ var CorrectIdentity = {
 
   getAccountPreferences: function(oServer)
   {
-    var oPreferences = this.preferences;
+    let oPreferences = this.preferences;
 
     // Determine defaults for this account
     let oIdentities = this.accountManager.getIdentitiesForServer
