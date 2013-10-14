@@ -306,7 +306,7 @@ var CorrectIdentity = {
     let oIdentity = null;
 
     // We overlay with the same code different things and as names are different we make a simple trick to make them the same
-    if (!window.accountManager) window.accountManager = gAccountManager;
+    if (!window.accountManager) window.accountManager = this.accountManager;
 
     // First, select an identity using the prefered identity mechanism
     switch(oAccountPreferences.identityMechanism)
@@ -390,9 +390,9 @@ var CorrectIdentity = {
       if (msgCompFields) {
         Recipients2CompFields(msgCompFields);
                 
-        var currentidentity = gAccountManager.getIdentity(document.getElementById("msgIdentity").value);
-        var servers = gAccountManager.GetServersForIdentity(currentidentity);
-        var identity = window.CorrectIdentity.getIdentityForServer(servers.QueryElementAt(0, Components.interfaces.nsIMsgIncomingServer), msgCompFields.to + "," + msgCompFields.cc);
+        var currentidentity = this.accountManager.getIdentity(document.getElementById("msgIdentity").value);
+        var servers = this.accountManager.getServersForIdentity(currentidentity);
+        var identity = window.CorrectIdentity.getIdentityForServer(servers.queryElementAt(0, Components.interfaces.nsIMsgIncomingServer), msgCompFields.to + "," + msgCompFields.cc);
         
         dump("window: " + window + ", " + window.CorrectIdentity.changed + "\n");
         if (!window.CorrectIdentity.changed && identity && (currentidentity != identity)) {
