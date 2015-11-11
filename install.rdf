@@ -6,10 +6,11 @@
 
     <em:id>{47ef7cc0-2201-11da-8cd6-0800200c9a66}</em:id>
     <em:name>Correct Identity</em:name>
-    <em:version>1.3.6</em:version>
+    <em:version>1.4.5</em:version>
     <em:type>2</em:type>
     <em:description>Allows you to configure the identity that will be chosen upon composing mail.</em:description>
     <em:creator>Dennis Verspuij</em:creator>
+    <em:contributor>Benjamin Menant (fr-FR locale)</em:contributor>
     <em:contributor>Alan Boey (TB3 compatibility)</em:contributor>
     <em:contributor>Tobias Markus (de-DE locale)</em:contributor>
     <em:contributor>Premier.jp (ja locale)</em:contributor>
@@ -18,6 +19,8 @@
     <em:contributor>Andreas Wagner (TB v20+ compatibility)</em:contributor>
     <em:contributor>Axel Grude (TB v20+ compatibility)</em:contributor>
     <em:contributor>Petr Vones (TB v20+ compatibility)</em:contributor>
+    <em:contributor>Mitar Milutinovic (as-you-type indentity and aliases matching for new messages)</em:contributor>
+    <em:contributor>Bojan Čekrlić (warn when sending to certain recipients)</em:contributor>
     <em:optionsURL>chrome://correctidentity/content/options.xul</em:optionsURL>
     <em:homepageURL/>
 
@@ -26,10 +29,10 @@
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
         <em:minVersion>1.0</em:minVersion>
-        <em:maxVersion>24.*</em:maxVersion>
+        <em:maxVersion>38.*</em:maxVersion>
       </Description>
     </em:targetApplication>
-    
+
     <!-- Postbox -->
      <em:targetApplication>
       <Description>
@@ -42,11 +45,12 @@
     <em:file>
       <Description about="urn:mozilla:extension:file:correctidentity.jar">
         <em:package>content/</em:package>
-				<em:skin>skin/classic/</em:skin>
-				<em:locale>locale/en-US/</em:locale>
-				<em:locale>locale/nl-NL/</em:locale>
-				<em:locale>locale/de-DE/</em:locale>
-				<em:locale>locale/ja/</em:locale>
+        <em:skin>skin/classic/</em:skin>
+        <em:locale>locale/en-US/</em:locale>
+        <em:locale>locale/nl-NL/</em:locale>
+        <em:locale>locale/de-DE/</em:locale>
+        <em:locale>locale/ja/</em:locale>
+        <em:locale>locale/fr-FR/</em:locale>
       </Description>
     </em:file>
 
